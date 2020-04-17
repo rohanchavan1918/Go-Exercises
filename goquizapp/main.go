@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 )
 
 func exit(msg string) {
@@ -30,14 +31,13 @@ func ParseLines(lines [][]string) []problem {
 		}
 		// fmt.Println(ret[i])
 	}
-
 	return ret
-
 }
 
 func main() {
 	// Create a flag to take command line arguments
 	csvFileName := flag.String("csv", "problems.csv", "A csv file in the format of questions and answer")
+	timeLimit := flag.Int("limit", 30, "Time Limit for quiz in second")
 	// csvFileNAme is just a pointer to a string
 	flag.Parse()
 	file, err := os.Open(*csvFileName)
@@ -54,16 +54,35 @@ func main() {
 	// fmt.Println(lines)
 	// Pass the lines to parselines func and get the struct
 	problems := ParseLines(lines)
+	//  Create a timer for n seconds
+	timer := time.NewTimer(time.Duration(*timeLimit) * time.Second)
+	// wait for msg from channel
 
 	var correct int = 0
 	var userAnswer string
+
+problemloop:
 	for i, p := range problems {
 		fmt.Printf("Problem #%d => %s = \n", i+1, p.question)
-		fmt.Scanf("%s\n", &userAnswer)
-		if userAnswer == p.answer {
-			correct++
-		}
 
+		answerCh := make(chan string)
+
+		go func() {
+			// GO ROutine so that we can concurently get the inputs ...orelse our code will be stuck at scanf even if timer expires.
+
+			fmt.Scanf("%s\n", &userAnswer)
+			// THen send he answer over the answerchannel
+			answerCh <- userAnswer
+		}()
+
+		select {
+		case <-timer.C:
+			fmt.Printf("Your Score is %d / %d", correct, len(problems))
+			break problemloop
+		case userAnswer := <-answerCh:
+			if userAnswer == p.answer {
+				correct++
+			}
+		}
 	}
-	fmt.Printf("Your Score is %d / %d", correct, len(problems))
 }
