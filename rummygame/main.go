@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
+	"os"
+	"os/exec"
 	"time"
 )
 
@@ -34,8 +37,16 @@ func makeJoker(cards [54]string) string {
 	}
 }
 
+func clear() {
+	cmd := exec.Command("cmd", "/c", "cls") //Windows example, its tested
+	cmd.Stdout = os.Stdout
+	cmd.Run()
+}
+
 func main() {
 	// Generate Cards
+
+	var rummyDeclared bool = false
 	cards := [54]string{
 		"cA", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "cG", "cQ", "cK",
 		"dA", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9", "d10", "dG", "dQ", "dK",
@@ -65,5 +76,27 @@ func main() {
 	joker := makeJoker(shuffledCards)
 
 	// Game setup is now completed... Players can start playing
+
+	// Which PLayer will play next....will change to 2 after player 1 plays and viz
+	var playerturn int = 1
+	for rummyDeclared != true {
+		fmt.Println("Joker Card :-", joker)
+		fmt.Println("Upper Card :-", remaining_deck[0])
+		var cardInHand string = ""
+		switch playerturn {
+		case 1:
+			fmt.Println("Player 1 Plays ....")
+			fmt.Println("[PLAYER 1] ->", user1_cards)
+			fmt.Scanln(&cardInHand)
+			clear()
+			playerturn = 2
+		case 2:
+			fmt.Println("Player 2 Plays ....")
+			fmt.Println("[player 2] ->", user2_cards)
+			fmt.Scanln(&cardInHand)
+			clear()
+			playerturn = 1
+		}
+	}
 
 }
