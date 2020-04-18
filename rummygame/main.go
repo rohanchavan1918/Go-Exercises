@@ -107,6 +107,7 @@ func main() {
 	user2_cards := []string{}
 	remaining_deck := []string{}
 	usedCardsDeck := []string{}
+	var RummyClaimeduser int
 	for i, card := range shuffledCards {
 		if i <= 25 {
 			if i%2 == 0 {
@@ -135,15 +136,15 @@ func main() {
 	for rummyDeclared != true {
 		fmt.Println("Joker Card :-", joker)
 		upperCard = remaining_deck[0]
-		fmt.Println("Upper Card :-", upperCard)
+
 		var userInput string = ""
 		switch playerturn {
 		case 1:
-
-			// player one login
+			fmt.Println("Upper Card :-", upperCard)
+			// player one logic
 			fmt.Println("Player 1 turn ...")
 			fmt.Println("[PLAYER 1] ->", user1_cards)
-			fmt.Println("[!] Press u if you want to take the upper card/ press d if you want to take from deck")
+			fmt.Print("[!] Press u if you want to take the upper card press d if you want to take from deck  \n CMD >")
 			fmt.Scanln(&userInput)
 			switch userInput {
 			case "u":
@@ -170,9 +171,10 @@ func main() {
 				// user didnt pick up the upper card, so add it to the used card deck.
 				usedCardsDeck = append(usedCardsDeck, upperCard)
 				// then remove the card from the main deck
-				go RemoveCard(remaining_deck, upperCard)
+				remaining_deck = RemoveCard(remaining_deck, upperCard)
 				// make the next card as upper card
 				upperCard = remaining_deck[0]
+				fmt.Println("card_picked from dec", upperCard)
 				user1_cards = append(user1_cards, upperCard)
 				fmt.Println("[PLAYER 1] ", user1_cards)
 				fmt.Println("[!] You have to Drop one card, enter the card name to drop")
@@ -186,6 +188,10 @@ func main() {
 				var pass string
 				fmt.Scanln(&pass)
 				_ = pass
+			case "rummy":
+				rummyDeclared = true
+				RummyClaimeduser = 1
+
 			}
 
 			// CLear the screen for next player
@@ -193,11 +199,89 @@ func main() {
 			playerturn = 2
 		case 2:
 			// player two logic
-			fmt.Println("Player 2 Plays ....")
-			fmt.Println("[player 2] ->", user2_cards)
+			fmt.Println("Upper Card :-", upperCard)
+			fmt.Println("Player 2 turn ...")
+			fmt.Println("[PLAYER 2] ->", user2_cards)
+			fmt.Print("[!] Press u if you want to take the upper card/ press d if you want to take from deck \n CMD >")
 			fmt.Scanln(&userInput)
+			switch userInput {
+			case "u":
+				user2_cards = append(user2_cards, upperCard)
+				fmt.Println("[PLAYER 2] ", user2_cards)
+				fmt.Println("[!] You have to Drop one card, enter the card name to drop")
+
+				// WORK FROM HERE
+				fmt.Scanln(&cardToDrop)
+				user2_cards = RemoveCard(user2_cards, cardToDrop)
+				// Again sort the cards,
+				user2_cards = sortCards(user2_cards)
+				upperCard = cardToDrop
+
+				// Since the user picked up the upper card, remove the upper card from
+				RemoveCard(remaining_deck, upperCard)
+
+				// Add that card to usedcards deck
+				usedCardsDeck = append(usedCardsDeck, upperCard)
+				fmt.Println("[PLAYER 2]", user2_cards)
+				fmt.Println("[+] Press p to pass to next player")
+				var pass string
+				fmt.Scanln(&pass)
+				_ = pass
+			case "d":
+				// user didnt pick up the upper card, so add it to the used card deck.
+				usedCardsDeck = append(usedCardsDeck, upperCard)
+				// then remove the card from the main deck
+				remaining_deck = RemoveCard(remaining_deck, upperCard)
+				// make the next card as upper card
+				upperCard = remaining_deck[0]
+				fmt.Println("card_picked from dec", upperCard)
+				user2_cards = append(user2_cards, upperCard)
+				fmt.Println("[PLAYER 2] ", user2_cards)
+				fmt.Println("[!] You have to Drop one card, enter the card name to drop")
+				fmt.Scanln(&cardToDrop)
+				user2_cards = RemoveCard(user2_cards, cardToDrop)
+				// Again sort the cards,
+				user2_cards = sortCards(user2_cards)
+				upperCard = cardToDrop
+				fmt.Println("[PLAYER 2]", user2_cards)
+				fmt.Println("[+] Press p to pass to next player")
+				var pass string
+				fmt.Scanln(&pass)
+				_ = pass
+			case "rummy":
+				rummyDeclared = true
+				RummyClaimeduser = 2
+
+			}
 			clear()
 			playerturn = 1
+		}
+	}
+	// RUmmy has been claimed, display to both
+	clear()
+	var userAccept string
+	switch RummyClaimeduser {
+	case 1:
+		fmt.Println("Rummy Claimed by player 1")
+		fmt.Println("Player 1 CARDS :-")
+		fmt.Println("[PLAYER 1] - ", user1_cards)
+		fmt.Println("PLAYER 2, Do you accept player 1 RUMMY ? [y/n]")
+		fmt.Scanln(&userAccept)
+		if userAccept == "y" {
+			fmt.Println("User 1 won")
+		} else {
+			fmt.Println("oops...")
+		}
+	case 2:
+		fmt.Println("Rummy Claimed by player 2")
+		fmt.Println("Player 2 CARDS :-")
+		fmt.Println("[PLAYER 2] - ", user1_cards)
+		fmt.Println("PLAYER 1, Do you accept player 2 RUMMY ? [y/n]")
+		fmt.Scanln(&userAccept)
+		if userAccept == "y" {
+			fmt.Println("User 2 won")
+		} else {
+			fmt.Println("oops...")
 		}
 	}
 
