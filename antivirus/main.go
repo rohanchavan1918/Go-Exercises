@@ -12,6 +12,9 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
+
+	"github.com/fatih/color"
 )
 
 // Antivirus implementation in Go using Virus total APi
@@ -57,6 +60,50 @@ func SingleFileMode(upath string) bool {
 		result = true
 	}
 	return result
+}
+
+// DirectoryScanMode is for the directory mode
+func DirectoryScanMode(dirpath string) {
+	color.Blue("[+] Starting Scanning...")
+	// routineresults := make(chan bool)
+	err := filepath.Walk(dirpath,
+		func(Upath string, info os.FileInfo, err error) error {
+			if err != nil {
+				color.Red("[!] ERROR HANDLED - ER1")
+
+			}
+			switch info.IsDir() {
+			case true:
+				// Means it is a directory :-
+				color.Yellow("Entering directory :- %s", Upath)
+			case false:
+				md5checksum, md5err := Md5Hash(Upath)
+				if md5err != nil {
+					color.Red("[!] ERROR HANDLED - ER1")
+				}
+				// color.Blue("[+] Checking file >")
+				color.Green("|-- %s", Upath)
+				extension := filepath.Ext(Upath)
+
+				potentialDangerousExtensions := []string{".exe", ".pif", ".application", ".gadget", ".msi", ".msp", ".jar", ".bat", ".cmd", ".vbs", ".ps1"}
+				for _, v := range potentialDangerousExtensions {
+					if extension == v {
+						// fmt.Println("Malicious File ", info.Name(), md5checksum)
+
+						result := DetectionEngines(md5checksum)
+						// result := <-routineresults
+						if result == true {
+							fmt.Println("Malicious FIle Detected")
+						}
+					}
+				}
+
+			}
+			return nil
+		})
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 // DetectionEngines returns a boolean value wthr the file is malicious or not.
@@ -852,6 +899,7 @@ func DetectionEngines(md5hash string) bool {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", finalurl, nil)
 	req.Header.Set("x-apikey", APIKey)
+	// fmt.Println("[+]-----------------Sending Req-------------------")
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)
@@ -943,7 +991,7 @@ func DetectionEngines(md5hash string) bool {
 	// AV_dict := []string{"ALYac", "APEX", "AVG", "Acronis", "Ad-Aware", "AegisLab", "AhnLab-V3", "Alibaba", "Antiy-AVL", "Arcabit", "Avast", "Avast-Mobile", "Avira", "Baidu", "BitDefender", "BitDefenderTheta", "Bkav", "CAT-QuickHeal", "CMC", "ClamAV", "Comodo", "CrowdStrike", "Cybereason", "Cylance", "Cyren", "DrWeb", "ESET-NOD32", "Emsisoft", "Endgame", "F-Prot", "F-Secure", "FireEye", "Fortinet", "GData", "Ikarus", "Invincea", "Jiangmin", "K7AntiVirus", "K7GW", "Kaspersky", "Kingsoft", "MAX", "Malwarebytes", "MaxSecure", "McAfee", "McAfee-GW-Edition", "MicroWorld-eScan", "Microsoft", "NANO-Antivirus", "Paloalto", "Panda", "Qihoo-360", "Rising", "SUPERAntiSpyware", "Sangfor", "SentinelOne", "Sophos", "Symantec", "SymantecMobileInsight", "TACHYON", "Tencent", "Trapmine", "TrendMicro", "TrendMicro-HouseCall", "VBA32", "VIPRE", "ViRobot", "Webroot", "Yandex", "Zillya", "ZoneAlarm", "Zoner", "eGambit"}
 
 	for i := range avresult {
-		if avresult[i] != "undetected" && avresult[i] != "type-unsupported" {
+		if avresult[i] == "Malicious" || avresult[i] == "Suspicious" {
 			malicious = true
 		}
 	}
@@ -962,7 +1010,7 @@ func main() {
 	flag.Parse()
 	switch *scantype {
 	case "dir":
-		fmt.Println("dir")
+		DirectoryScanMode(*upath)
 	case "file":
 		res := SingleFileMode(*upath)
 		switch res {
