@@ -33,11 +33,19 @@ func main() {
 		c.Next()
 	})
 
+	// Get all users
 	r.GET("/api/v1/Users/", controllers.GetUsers)
+	// Get individual user details
 	r.GET("/api/v1/Users/:id", controllers.GetUser)
+	// Signup User
 	r.POST("/api/v1/Users/", controllers.CreateUser)
+	// Update User
 	r.PUT("/api/v1/Users/:id", controllers.UpdateUser)
+	// Delete User
 	r.DELETE("/api/v1/Users/:id", controllers.DeleteUser)
-
+	// User signin
+	r.POST("/api/v1/auth/SignIn", controllers.SignIn)
+	r.POST("/api/v1/auth/Refresh", controllers.Refresh)
+	r.GET("/api/v1/auth/Welcome", controllers.Welcome)
 	r.Run(":8080")
 }

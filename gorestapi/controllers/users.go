@@ -80,3 +80,41 @@ func GetUsers(c *gin.Context) {
 	}
 
 }
+
+// JWT AUth
+func SignIn(c *gin.Context) {
+	db := c.MustGet("db").(*gorm.DB)
+	type Credentials struct {
+		Password string `json:"password"`
+		Email    string `json:"email"`
+	}
+	var Creds Credentials
+	var User models.User
+	// Store user supplied password in mem map
+	c.BindJSON(&Creds)
+	email := Creds.Email
+	userpassword := Creds.Password
+	var expectedpassword string
+	// check if the email exists
+	if err := db.Where("email = ?", email).First(&User).Error; err == nil {
+		// User Exists...Now compare his password with our password
+		expectedpassword = User.Password
+		if err = bcrypt.CompareHashAndPassword([]byte(expectedpassword), []byte(userpassword)); err != nil {
+			// If the two passwords don't match, return a 401 status
+			c.AbortWithStatusJSON(401, gin.H{"status": false, "message": "UNAUTHORIZED"})
+		} else {
+			fmt.Println("User AUthenticated.")
+			c.JSON(200, "WELCOME")
+		}
+	} else {
+		c.AbortWithStatusJSON(403, gin.H{"status": false, "message": "User Doesnot Exist"})
+	}
+}
+
+func Refresh(c *gin.Context) {
+	fmt.Println("Refresh")
+}
+
+func Welcome(c *gin.Context) {
+	fmt.Println("Welcome")
+}
