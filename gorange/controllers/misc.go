@@ -6,6 +6,7 @@ import (
 
 	"gophersize/gorestapi/models"
 
+	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
@@ -34,6 +35,25 @@ func UpdateUser(c *gin.Context) {
 	db.Save(&User)
 	c.JSON(200, User)
 
+}
+
+// GetIDFromEmail returns the id and other info from the email
+func GetIDFromEmail(c *gin.Context) {
+
+	db := c.MustGet("db").(*gorm.DB)
+	claims := jwt.ExtractClaims(c)
+	user_email, _ := claims["email"]
+	var User models.User
+
+	if err := db.Where("email = ?", user_email).First(&User).Error; err != nil {
+		c.AbortWithStatus(404)
+		fmt.Println(err)
+	} else {
+		c.JSON(200, gin.H{
+			"id":    User.ID,
+			"email": User.Email,
+		})
+	}
 }
 
 func CreateUser(c *gin.Context) {
@@ -79,5 +99,4 @@ func GetUsers(c *gin.Context) {
 	} else {
 		c.JSON(200, people)
 	}
-
 }

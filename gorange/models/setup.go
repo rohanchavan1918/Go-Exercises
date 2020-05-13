@@ -16,5 +16,6 @@ func SetupModels() *gorm.DB {
 		panic("error db")
 	}
 	// defer db.Close()
+	db.AutoMigrate(&User{})
 	return db
 }
