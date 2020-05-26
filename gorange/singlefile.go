@@ -9,6 +9,7 @@ import (
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt"
+	"github.com/gin-contrib/cors"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
@@ -100,6 +101,10 @@ func main() {
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+	// Setup COrs
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	r.Use(cors.New(config))
 	r.Use(func(c *gin.Context) {
 		c.Set("db", db)
 		c.Next()

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt"
+	"github.com/gin-contrib/cors"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 
@@ -57,6 +58,9 @@ func CheckCredentials(useremail, userpassword string) bool {
 		// User is AUthenticates, Now set the JWT Token
 		fmt.Println("User Verified")
 		return true
+	} else {
+		fmt.Println("idhar fata")
+		log.Fatal(err)
 	}
 	return false
 }
@@ -67,6 +71,10 @@ func main() {
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+	// Setup COrs
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	r.Use(cors.New(config))
 	r.Use(func(c *gin.Context) {
 		c.Set("db", db)
 		c.Next()
