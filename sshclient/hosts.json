@@ -1,0 +1,14 @@
+{
+    "hosts": [
+      {
+        "host": "username",
+        "username": "rohan",
+        "password": "password"
+      },
+      {
+        "host": "username",
+        "username": "rohan",
+        "password": "password"
+      }
+    ]
+  }
