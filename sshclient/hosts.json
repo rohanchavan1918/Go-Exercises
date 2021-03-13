@@ -1,14 +1,14 @@
 {
-    "hosts": [
-      {
-        "host": "username",
-        "username": "rohan",
-        "password": "password"
-      },
-      {
-        "host": "username",
-        "username": "rohan",
-        "password": "password"
-      }
-    ]
-  }
+  "hosts": [
+    {
+      "host": "68.183.90.51:22",
+      "username": "rohan",
+      "password": "POg0Aewtdjd00&*sdS6^QcPr!&5"
+    },
+    {
+      "host": "68.183.90.51:22",
+      "username": "rohan",
+      "password": "POg0Aewtdjd00&*sdS6^QcPr!&5"
+    }
+  ]
+}
